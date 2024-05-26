@@ -1,20 +1,26 @@
 import React, { useState } from 'react';
-import { Container, Paper, Typography, TextField, Button, Stack, Avatar, IconButton } from '@mui/material';
-import { CameraAlt as CameraAltIcon } from '@mui/icons-material';
+import { Container, Paper, Typography, TextField, Button, Stack, Avatar, IconButton, InputAdornment } from '@mui/material';
+import { CameraAlt as CameraAltIcon, Visibility, VisibilityOff } from '@mui/icons-material';
 
-import { VisuallyHiddenInput } from '../components/StyledComponents';
+import { VisuallyHiddenInput } from '../components/styles/StyledComponents';
 import { useFileHandler, useInputValidation, useStrongPassword } from '6pp';
 import { usernameValidator } from '../utils/validators';
+import { bgGradient } from '../constants/color';
 
 const Login = () => {
     const [isLogin, setIsLogin] = useState(true);
+    const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
 
     const toggleLogin = () => {
         setIsLogin(prev => !prev);
     };
+    
+    const toggleShowPassword = () => {
+        setShowPassword(prev => !prev);
+    };
 
     const name = useInputValidation("");
-    const bio = useInputValidation("");
+    const bio = useInputValidation("");  
     const username = useInputValidation("", usernameValidator);
     const password = useStrongPassword();
     const avatar = useFileHandler("single");
@@ -32,7 +38,7 @@ const Login = () => {
     return (
         <div
             style={{
-                backgroundImage: "linear-gradient(rgba(200,200,200,0.5),rgba(120,110,220,0.5))",
+                backgroundImage: bgGradient,
                 minHeight: "100vh",
                 display: "flex",
                 justifyContent: "center",
@@ -49,10 +55,65 @@ const Login = () => {
                         alignItems: 'center'
                     }}
                 >
-                    <Typography variant="h5">{isLogin ? "Login" : "Sign Up"}</Typography>
-                    <form onSubmit={isLogin ? handleLogin : handleSignup}>
-                        {!isLogin && (
-                            <>
+                    {isLogin ? (
+                        <>
+                            <Typography variant="h5">Login</Typography>
+                            <form
+                                style={{
+                                    width: "100%",
+                                    marginTop: "1rem",
+                                }}
+                                onSubmit={handleLogin}
+                            >
+                                <TextField
+                                    required
+                                    fullWidth
+                                    label="Username"
+                                    margin="normal"
+                                    variant="outlined"
+                                    value={username.value}
+                                    onChange={username.changeHandler}
+                                />
+                                <TextField
+                                    required
+                                    fullWidth
+                                    label="Password"
+                                    margin="normal"
+                                    variant="outlined"
+                                    type={showPassword ? "text" : "password"}
+                                    value={password.value}
+                                    onChange={password.changeHandler}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton onClick={toggleShowPassword} edge="end">
+                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        )
+                                    }}
+                                />
+                                <Button
+                                    sx={{ marginTop: '1rem' }}
+                                    variant="contained"
+                                    color="primary"
+                                    type="submit"
+                                    fullWidth
+                                >
+                                    Login
+                                </Button>
+                                <Typography textAlign="center" m="1rem">
+                                    OR
+                                </Typography>
+                                <Button fullWidth variant="text" onClick={toggleLogin}>
+                                    Sign Up
+                                </Button>
+                            </form>
+                        </>
+                    ) : (
+                        <>
+                            <Typography variant="h5">Sign Up</Typography>
+                            <form onSubmit={handleSignup}>
                                 <Stack position="relative" width="10rem" margin="auto">
                                     <Avatar
                                         sx={{
@@ -63,7 +124,7 @@ const Login = () => {
                                         src={avatar.preview}
                                     />
                                     {avatar.error && (
-                                        <Typography color="error " variant="caption">
+                                        <Typography color="error" variant="caption">
                                             {avatar.error}
                                         </Typography>
                                     )}
@@ -102,55 +163,52 @@ const Login = () => {
                                     value={bio.value}
                                     onChange={bio.changeHandler}
                                 />
-                            </>
-                        )}
-                        <TextField
-                            required
-                            fullWidth
-                            label="Username"
-                            margin="normal"
-                            variant="outlined"
-                            value={username.value}
-                            onChange={username.changeHandler}
-                        />
-                        {username.error && (
-                            <Typography color="error " variant="caption">
-                                {username.error}
-                            </Typography>
-                        )}
-                        <TextField
-                            required
-                            fullWidth
-                            type="password"
-                            label="Password"
-                            margin="normal"
-                            variant="outlined"
-                            value={password.value}
-                            onChange={password.changeHandler}
-                        />
-                        {password.error && (
-                            <Typography color="error " variant="caption">
-                                {password.error}
-                            </Typography>
-                        )}
-                        <Button
-                            sx={{ marginTop: '1rem' }}
-                            variant="contained"
-                            color="primary"
-                            type="submit"
-                            fullWidth
-                        >
-                            {isLogin ? "Login" : "Sign Up"}
-                        </Button>
-                        <Typography textAlign="center" m="1rem">
-                            {isLogin
-                                ? "Don't have an account? "
-                                : "Already have an account? "}
-                            <Button color="primary" onClick={toggleLogin}>
-                                {isLogin ? "Sign Up" : "Login"}
-                            </Button>
-                        </Typography>
-                    </form>
+                                <TextField
+                                    required
+                                    fullWidth
+                                    label="Username"
+                                    margin="normal"
+                                    variant="outlined"
+                                    value={username.value}
+                                    onChange={username.changeHandler}
+                                />
+                                {username.error && (
+                                    <Typography color="error" variant="caption">
+                                        {username.error}
+                                    </Typography>
+                                )}
+                                <TextField
+                                    required
+                                    fullWidth
+                                    label="Password"
+                                    margin="normal"
+                                    variant="outlined"
+                                    value={password.value}
+                                    onChange={password.changeHandler}
+                                />
+                                {password.error && (
+                                    <Typography color="error" variant="caption">
+                                        {password.error}
+                                    </Typography>
+                                )}
+                                <Button
+                                    sx={{ marginTop: '1rem' }}
+                                    variant="contained"
+                                    color="primary"
+                                    type="submit"
+                                    fullWidth
+                                >
+                                    Sign Up
+                                </Button>
+                                <Typography textAlign="center" m="1rem">
+                                    OR
+                                </Typography>
+                                <Button fullWidth variant="text" onClick={toggleLogin}>
+                                    Login Instead!!
+                                </Button>
+                            </form>
+                        </>
+                    )}
                 </Paper>
             </Container>
         </div>

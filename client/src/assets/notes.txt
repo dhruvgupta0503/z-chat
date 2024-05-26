@@ -1,0 +1,3 @@
+//chats page need to be looked again 
+and all the sample data too need to do something about it 
+#CDE8E5 bgcolor given to the groups component
