@@ -8,4 +8,6 @@ const multerUploads=multer({limits:{
 });
 const singleAvatar=multerUploads.single("avatar");
 
-export {singleAvatar};
+const attachmentMulter=multerUploads.array("files",5);
+
+export {singleAvatar,attachmentMulter};
