@@ -9,6 +9,7 @@ import chatRoute from "./routes/chat.js";
 import userRoute from "./routes/user.js";
 import { createGroupChats, createMessagesInAChat, createSingleChats } from "./seeders/chat.js";
 import { createUser } from "./seeders/user.js";
+import adminRoute from "./routes/admin.js";
 
 dotenv.config({
     path: "./.env",
@@ -35,6 +36,8 @@ app.use(cookieParser());
 // Routes
 app.use('/user', userRoute);
 app.use('/chat', chatRoute);
+
+app.use('/admin',adminRoute)
 
 app.get("/", (req, res) => {
     res.send("Hello World");
