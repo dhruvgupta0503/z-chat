@@ -1,8 +1,8 @@
 import express from "express";
-import { getMyProfile, login, logout, newUser,searchUser } from "../controllers/user.js";
+import { acceptFriendRequest, getMyNotifications, getMyProfile, login, logout, newUser,searchUser, sendFriendRequest } from "../controllers/user.js";
 import { singleAvatar } from "../middlewares/multer.js";
 import { isAuthenticated } from "../middlewares/Auth.js";
-import { registerValidator,validateHandler,loginValidator } from "../lib/validators.js";
+import { registerValidator,validateHandler,loginValidator, sendRequestValidator, acceptRequestValidator } from "../lib/validators.js";
 
 const router = express.Router();
 
@@ -17,8 +17,20 @@ router.post("/new", singleAvatar,registerValidator(),validateHandler, newUser);
 
 // User must be logged in to access this route
 router.use(isAuthenticated);
+
 router.get("/me", getMyProfile);
+
 router.get("/logout", logout);
+
 router.get("/search",searchUser);
 
+router.put("/sendrequest",sendRequestValidator(),validateHandler,sendFriendRequest);
+
+router.put("/accept-request",acceptRequestValidator(),validateHandler,acceptFriendRequest);
+
+
+router.get("/notifications",getMyNotifications);
+
+
 export default router;
+
