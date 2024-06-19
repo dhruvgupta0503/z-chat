@@ -206,7 +206,7 @@ const sendAttachment =TryCatch(async(req,res,next)=>{
 
     if(files.length<1) return next(new ErrorHandler("Please provide attachhments",400));
 
-    // upload files here 
+   // upload files here  
 
     const attachments=[];
 
@@ -234,7 +234,7 @@ const sendAttachment =TryCatch(async(req,res,next)=>{
 
     return res.status(200).json({
         success:true,
-        message,
+        message,                            
     });
 });
 
