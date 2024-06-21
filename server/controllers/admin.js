@@ -5,13 +5,14 @@ import { Message } from "../models/message.js";
 import { ErrorHandler } from "../utils/utility.js";
 import jwt from "jsonwebtoken";
 import { cookieOptions } from "../utils/features.js";
+import { adminSecretKey } from "../app.js";
 
 
 
 
 const adminLogin=TryCatch(async(req,res,next)=>{
     const{secretKey}=req.body;
-    const adminSecretKey=process.env.ADMIN_SECRET_KEY || "zeba";
+    
 
     const isMatched=secretKey===adminSecretKey;
 
@@ -23,6 +24,21 @@ const adminLogin=TryCatch(async(req,res,next)=>{
     return res.status(200).cookie("z-chat-admin-token",token,{...cookieOptions,maxAge:1000*60*15}).json({
         success:true,
         message:"Authenticated Successfully , Welcome BOSS"
+    })
+
+
+});
+
+
+const adminLogout=TryCatch(async(req,res,next)=>{
+
+    
+
+
+
+    return res.status(200).cookie("z-chat-admin-token","",{...cookieOptions,maxAge:0,}).json({
+        success:true,
+        message: "Logged Out Successfully"
     })
 
 
@@ -165,4 +181,4 @@ const getDashboardStats = TryCatch(async (req, res) => {
   });
 
 
-export {allUser,allChats,allMessages,getDashboardStats,adminLogin};
+export {allUser,allChats,allMessages,getDashboardStats,adminLogin,adminLogout};
