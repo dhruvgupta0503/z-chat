@@ -1,5 +1,5 @@
 import express from "express";
-import { allChats, allUser,allMessages, getDashboardStats, adminLogin, adminLogout } from "../controllers/admin.js";
+import { allChats, allUser,allMessages, getDashboardStats, adminLogin, adminLogout, getAdminData } from "../controllers/admin.js";
 import { adminLoginValidator, validateHandler } from "../lib/validators.js";
 import { adminOnly } from "../middlewares/Auth.js";
 
@@ -14,7 +14,7 @@ app.get("/logout",adminLogout);
 
 app.use(adminOnly)
 
-app.get("/")
+app.get("/",getAdminData)
 
 
 
