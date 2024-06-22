@@ -22,7 +22,7 @@ const registerValidator=()=>[
     body("username","Please Enter Username ").notEmpty(),
     body("bio","Please Enter Bio ").notEmpty(),
     body("password","Please Enter Password ").notEmpty(),
-    check("avatar","Please Upload Avatar").notEmpty(),
+    
 ];
 
 const loginValidator=()=>[ 
@@ -49,7 +49,7 @@ const removeMemberValidator=()=>[
 
 const sendAttachmentValidator=()=>[ 
     body("chatId","Please Enter Chat Id ").notEmpty(),
-    check("files").notEmpty().withMessage("Please upload attachments").isArray({min:1,max:5}).withMessage("Attachment must be between 1-5"),
+   
     
 ];
 
