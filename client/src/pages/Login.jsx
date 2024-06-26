@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Container, Paper, Typography, TextField, Button, Stack, Avatar, IconButton, InputAdornment } from '@mui/material';
-import { CameraAlt as CameraAltIcon, Visibility, VisibilityOff } from '@mui/icons-material';
+import { Api, CameraAlt as CameraAltIcon, Visibility, VisibilityOff } from '@mui/icons-material';
 
 import { VisuallyHiddenInput } from '../components/styles/StyledComponents';
 import { useFileHandler, useInputValidation, useStrongPassword } from '6pp';
 import { usernameValidator } from '../utils/validators';
 import { bgGradient } from '../constants/color';
-
+import axios from 'axios';
+import { server } from "../constants/config";
+import { useDispatch } from 'react-redux';
 const Login = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
@@ -25,9 +27,31 @@ const Login = () => {
     const password = useStrongPassword();
     const avatar = useFileHandler("single");
 
-    const handleLogin = (e) => {
+    const dispatch=useDispatch()
+
+    const handleLogin = async(e) => {
         e.preventDefault();
-        // Handle login logic
+        
+
+        const config={
+            withCredentials:true,
+            headers:{
+                "Content-Type":"application/json"
+            },
+        };
+        try {
+            
+       const {data}=  await axios.post(`${server}/api/v1/user/login`,{
+            username:username.value,
+            password:password.value,
+        },
+        config
+        
+    );
+
+        
+        } catch (error)  {}
+
     };
 
     const handleSignup = (e) => {

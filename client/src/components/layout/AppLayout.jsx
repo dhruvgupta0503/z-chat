@@ -6,6 +6,7 @@ import ChatList from '../specific/ChatList';
 import { samplechats } from '../../constants/sampleData';
 import { useParams } from 'react-router-dom';
 import Profile from '../specific/Profile';
+//import { Title } from '@mui/icons-material';
 const AppLayout = (WrappedComponent) => {
     const ComponentWithLayout = (props) => {
         // Move the useParams() hook inside the function component
@@ -19,6 +20,7 @@ const AppLayout = (WrappedComponent) => {
 
         return (
             <div>
+            
                 <Header />
                 <Grid container height="calc(100vh - 4rem)">
                     <Grid item sm={4} md={3} sx={{
