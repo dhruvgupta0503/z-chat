@@ -7,13 +7,14 @@ import { errorMiddleware } from "./middlewares/error.js";
 import cookieParser from "cookie-parser";
 import { Server } from "socket.io";
 import { createServer } from 'http';
-import chatRoute from "./routes/chat.js";
-import userRoute from "./routes/user.js";
-import adminRoute from "./routes/admin.js";
-import { isAuthenticated, adminOnly } from "./middlewares/Auth.js";
-import { NEW_MESSAGE } from "./constants/events.js";
-import { getSockets } from "./lib/helper.js";
-import { Message } from "./models/message.js";
+import chatRoute from './routes/chat.js';
+import userRoute from './routes/user.js';
+import adminRoute from './routes/admin.js';
+import { isAuthenticated, adminOnly } from './middlewares/Auth.js';
+import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from './constants/events.js';
+import { getSockets } from './lib/helper.js';
+import { Message } from './models/message.js';
+import {v2 as cloudinary} from 'cloudinary';
 
 dotenv.config({
     path: "./.env",
