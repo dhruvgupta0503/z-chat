@@ -4,19 +4,15 @@ import App from './App.jsx'
 import {CssBaseline} from '@mui/material'; 
 import {HelmetProvider} from 'react-helmet-async';
 import { BrowserRouter } from 'react-router-dom';
-import { Provider } from "react-redux"
-import store from './redux/store.js';
 
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
-    <Provider store={store}>
-        <HelmetProvider>
+      <HelmetProvider>
   <CssBaseline/>
-    <div onContextMenu={(e)=>e.preventDefault}><App /></div>
     
+    <App />
   </HelmetProvider>
-    </Provider>
   </BrowserRouter>
 
 )
