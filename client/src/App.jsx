@@ -3,7 +3,7 @@ import {  Routes, Route } from 'react-router-dom';
 import ProtectRoute from './components/auth/ProtectRoute';
 import { LayoutLoader } from './components/layout/Loaders';
 import useFetch from 'use-fetch';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { userExists, userNotExists } from './redux/reducers/auth';
 import { Toaster } from 'react-hot-toast';
 import { server } from './constants/config';
@@ -27,8 +27,6 @@ const MessagesManagement=lazy(()=>import('./pages/admin/MessageManagement'))
 
 let user = true; 
 const App = () => {
-
-  const {user,loader}=useSelector(state=>state.auth)
   const dispatch = useDispatch();
   const { data, error, loading } = useFetch(`${server}/api/v1/user/me`, {
     method: 'GET',
@@ -43,7 +41,7 @@ const App = () => {
     }
   }, [data, error, dispatch]);
 
-  return   (
+  return (
     <>
       {loading ? (
         <LayoutLoader />

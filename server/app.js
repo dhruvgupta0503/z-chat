@@ -14,7 +14,6 @@ import { isAuthenticated, adminOnly } from './middlewares/Auth.js';
 import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from './constants/events.js';
 import { getSockets } from './lib/helper.js';
 import { Message } from './models/message.js';
-import {v2 as cloudinary} from 'cloudinary';
 
 dotenv.config({
     path: "./.env",
