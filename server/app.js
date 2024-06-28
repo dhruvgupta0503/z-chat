@@ -48,9 +48,9 @@ app.use(cors({
 }));
 
 // Routes
-app.use('/api/v1/user', userRoute);
-app.use('/api/v1/chat', chatRoute);
-app.use('/api/v1/admin', adminRoute);
+app.use('/user', userRoute);
+app.use('/chat', chatRoute);
+app.use('/admin', adminRoute);
 
 app.get('/', (req, res) => {
     res.send('Hello World');
