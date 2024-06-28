@@ -1,130 +1,82 @@
 import React, { useState } from 'react';
 import { Container, Paper, Typography, TextField, Button, Stack, Avatar, IconButton, InputAdornment } from '@mui/material';
-import { CameraAlt as CameraAltIcon, Visibility, VisibilityOff } from '@mui/icons-material';
-import toast from 'react-hot-toast';
-import { useDispatch } from 'react-redux';
-import { useFileHandler, useInputValidation } from '6pp'; // Assuming '6pp' provides useFetch as well
-import { usernameValidator } from '../utils/validators';
-import { VisuallyHiddenInput } from '../components/styles/StyledComponents';
-import { bgGradient } from '../constants/color';
-import { server } from '../constants/config';
-import { userExists } from '../redux/reducers/auth';
+import { Api, CameraAlt as CameraAltIcon, Visibility, VisibilityOff } from '@mui/icons-material';
 
+import { VisuallyHiddenInput } from '../components/styles/StyledComponents';
+import { useFileHandler, useInputValidation, useStrongPassword } from '6pp';
+import { usernameValidator } from '../utils/validators';
+import { bgGradient } from '../constants/color';
+import axios from 'axios';
+import { server } from "../constants/config";
+import { useDispatch } from 'react-redux';
 const Login = () => {
     const [isLogin, setIsLogin] = useState(true);
-    const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
 
-    const toggleLogin = () => setIsLogin(prev => !prev);
-
-    const name = useInputValidation('');
-    const bio = useInputValidation('');
-    const username = useInputValidation('', usernameValidator);
-    const password = useInputValidation('');
-    const avatar = useFileHandler('single');
-
-    const dispatch = useDispatch();
-
-    const handleLogin = async e => {
-        e.preventDefault();
-        const toastId = toast.loading('Logging In...');
-        setIsLoading(true);
-
-        const config = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                username: username.value,
-                password: password.value,
-            }),
-        };
-
-        try {
-            const response = await fetch(`${server}/api/v1/user/login`, config);
-            const data = await response.json();
-
-            if (response.ok) {
-                dispatch(userExists(data.user));
-                toast.success(data.message, {
-                    id: toastId,
-                });
-            } else {
-                throw new Error(data.message || 'Login failed');
-            }
-        } catch (error) {
-            toast.error(error.message || 'Something Went Wrong', {
-                id: toastId,
-            });
-        } finally {
-            setIsLoading(false);
-        }
+    const toggleLogin = () => {
+        setIsLogin(prev => !prev);
+    };
+    
+    const toggleShowPassword = () => {
+        setShowPassword(prev => !prev);
     };
 
-    const handleSignUp = async e => {
+    const name = useInputValidation("");
+    const bio = useInputValidation("");  
+    const username = useInputValidation("", usernameValidator);
+    const password = useStrongPassword();
+    const avatar = useFileHandler("single");
+
+    const dispatch=useDispatch()
+
+    const handleLogin = async(e) => {
         e.preventDefault();
-        const toastId = toast.loading('Signing Up...');
-        setIsLoading(true);
+        
 
-        const formData = new FormData();
-        formData.append('avatar', avatar.file);
-        formData.append('name', name.value);
-        formData.append('bio', bio.value);
-        formData.append('username', username.value);
-        formData.append('password', password.value);
-
-        const config = {
+        const config={
             withCredentials:true,
-            headers: {
-                'Content-Type': 'multipart/form-data',
+            headers:{
+                "Content-Type":"application/json"
             },
-            body: formData,
         };
-
         try {
-            const response = await fetch(`${server}/api/v1/user/new`, config);
-            const data = await response.json();
+            
+       const {data}=  await axios.post(`${server}/api/v1/user/login`,{
+            username:username.value,
+            password:password.value,
+        },
+        config
+        
+    );
 
-            if (response.ok) {
-                dispatch(userExists(data.user));
-                toast.success(data.message, {
-                    id: toastId,
-                });
-            } else {
-                throw new Error(data.message || 'Signup failed');
-            }
-        } catch (error) {
-            toast.error(error.message || 'Something Went Wrong', {
-                id: toastId,
-            });
-        } finally {
-            setIsLoading(false);
-        }
+        
+        } catch (error)  {}
+
+    };
+
+    const handleSignup = (e) => {
+        e.preventDefault();
+        // Handle signup logic
     };
 
     return (
         <div
             style={{
                 backgroundImage: bgGradient,
+                minHeight: "100vh",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
             }}
         >
-            <Container
-                component={'main'}
-                maxWidth="xs"
-                sx={{
-                    height: '100vh',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}
-            >
+            <Container component="main" maxWidth="xs">
                 <Paper
                     elevation={3}
                     sx={{
                         padding: 4,
                         display: 'flex',
                         flexDirection: 'column',
-                        alignItems: 'center',
+                        alignItems: 'center'
                     }}
                 >
                     {isLogin ? (
@@ -132,8 +84,8 @@ const Login = () => {
                             <Typography variant="h5">Login</Typography>
                             <form
                                 style={{
-                                    width: '100%',
-                                    marginTop: '1rem',
+                                    width: "100%",
+                                    marginTop: "1rem",
                                 }}
                                 onSubmit={handleLogin}
                             >
@@ -146,56 +98,47 @@ const Login = () => {
                                     value={username.value}
                                     onChange={username.changeHandler}
                                 />
-
                                 <TextField
                                     required
                                     fullWidth
                                     label="Password"
-                                    type="password"
                                     margin="normal"
                                     variant="outlined"
+                                    type={showPassword ? "text" : "password"}
                                     value={password.value}
                                     onChange={password.changeHandler}
-                                />
-
-                                <Button
-                                    sx={{
-                                        marginTop: '1rem',
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton onClick={toggleShowPassword} edge="end">
+                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        )
                                     }}
+                                />
+                                <Button
+                                    sx={{ marginTop: '1rem' }}
                                     variant="contained"
                                     color="primary"
                                     type="submit"
                                     fullWidth
-                                    disabled={isLoading}
                                 >
                                     Login
                                 </Button>
-
-                                <Typography textAlign={'center'} m={'1rem'}>
+                                <Typography textAlign="center" m="1rem">
                                     OR
                                 </Typography>
-
-                                <Button
-                                    disabled={isLoading}
-                                    fullWidth
-                                    variant="text"
-                                    onClick={toggleLogin}
-                                >
-                                    Sign Up Instead
+                                <Button fullWidth variant="text" onClick={toggleLogin}>
+                                    Sign Up
                                 </Button>
                             </form>
                         </>
                     ) : (
                         <>
                             <Typography variant="h5">Sign Up</Typography>
-                            <form
-                                style={{
-                                    width: '100%',
-                                    marginTop: '1rem',
-                                }}
-                                onSubmit={handleSignUp}
-                            >
-                                <Stack position={'relative'} width={'10rem'} margin={'auto'}>
+                            <form onSubmit={handleSignup}>
+                                <Stack position="relative" width="10rem" margin="auto">
                                     <Avatar
                                         sx={{
                                             width: '10rem',
@@ -204,39 +147,28 @@ const Login = () => {
                                         }}
                                         src={avatar.preview}
                                     />
-
+                                    {avatar.error && (
+                                        <Typography color="error" variant="caption">
+                                            {avatar.error}
+                                        </Typography>
+                                    )}
                                     <IconButton
                                         sx={{
-                                            position: 'absolute',
-                                            bottom: '0',
-                                            right: '0',
-                                            color: 'white',
-                                            bgcolor: 'rgba(0,0,0,0.5)',
-                                            ':hover': {
-                                                bgcolor: 'rgba(0,0,0,0.7)',
-                                            },
+                                            position: "absolute",
+                                            bottom: "0",
+                                            right: "0",
+                                            color: "white",
+                                            bgcolor: "rgba(0,0,0,0.5)",
+                                            ":hover": {
+                                                bgcolor: "rgba(0,0,0,0.7)",
+                                            }
                                         }}
                                         component="label"
                                     >
-                                        <>
-                                            <CameraAltIcon />
-                                            <VisuallyHiddenInput type="file" onChange={avatar.changeHandler} />
-                                        </>
+                                        <CameraAltIcon />
+                                        <VisuallyHiddenInput type="file" onChange={avatar.changeHandler} />
                                     </IconButton>
                                 </Stack>
-
-                                {avatar.error && (
-                                    <Typography
-                                        m={'1rem auto'}
-                                        width={'fit-content'}
-                                        display={'block'}
-                                        color="error"
-                                        variant="caption"
-                                    >
-                                        {avatar.error}
-                                    </Typography>
-                                )}
-
                                 <TextField
                                     required
                                     fullWidth
@@ -246,7 +178,6 @@ const Login = () => {
                                     value={name.value}
                                     onChange={name.changeHandler}
                                 />
-
                                 <TextField
                                     required
                                     fullWidth
@@ -265,48 +196,39 @@ const Login = () => {
                                     value={username.value}
                                     onChange={username.changeHandler}
                                 />
-
                                 {username.error && (
                                     <Typography color="error" variant="caption">
                                         {username.error}
                                     </Typography>
                                 )}
-
                                 <TextField
                                     required
                                     fullWidth
                                     label="Password"
-                                    type="password"
                                     margin="normal"
                                     variant="outlined"
                                     value={password.value}
                                     onChange={password.changeHandler}
                                 />
-
+                                {password.error && (
+                                    <Typography color="error" variant="caption">
+                                        {password.error}
+                                    </Typography>
+                                )}
                                 <Button
-                                    sx={{
-                                        marginTop: '1rem',
-                                    }}
+                                    sx={{ marginTop: '1rem' }}
                                     variant="contained"
                                     color="primary"
                                     type="submit"
                                     fullWidth
-                                    disabled={isLoading}
                                 >
                                     Sign Up
                                 </Button>
-
-                                <Typography textAlign={'center'} m={'1rem'}>
+                                <Typography textAlign="center" m="1rem">
                                     OR
                                 </Typography>
-
-                                <Button
-                                    disabled={isLoading}
-                                    fullWidth
-                                    variant="text"
-                                    onClick={toggleLogin}
-                                >
-                                    Login Instead
+                                <Button fullWidth variant="text" onClick={toggleLogin}>
+                                    Login Instead!!
                                 </Button>
                             </form>
                         </>
