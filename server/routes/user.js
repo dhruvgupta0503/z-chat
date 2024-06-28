@@ -20,13 +20,7 @@ router.use(isAuthenticated);
 
 router.get("/me", getMyProfile);
 
-
-router.post("/logout", (req, res, next) => {
-    console.log("Logout route hit");
-    next();
-}, logout);
-
-//router.get("/logout", logout);
+router.get("/logout", logout);
 
 router.get("/search",searchUser);
 
