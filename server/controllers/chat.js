@@ -245,6 +245,7 @@ const sendAttachment =TryCatch(async(req,res,next)=>{
 
 
 const getChatDetails=TryCatch(async(req,res,next)=>{
+    
 
     if(req.query.populate==="true"){
 

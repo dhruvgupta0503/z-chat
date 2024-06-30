@@ -1,6 +1,6 @@
 import { compare } from 'bcrypt';
 import { User } from '../models/user.js';
-import { cookieOptions, emitEvent, sendToken } from '../utils/features.js';
+import { cookieOptions, emitEvent, sendToken, uploadFilesToCloudinary } from '../utils/features.js';
 import { TryCatch } from '../middlewares/error.js';
 import { ErrorHandler } from '../utils/utility.js';
 import { Chat } from '../models/chat.js';
@@ -10,18 +10,52 @@ import { getOtherMember } from '../lib/helper.js';
 
 
 const newUser = TryCatch(async (req, res, next) => {
-    const { name, username, password, bio } = req.body;
-    const file=req.file
+  const { name, username, password, bio } = req.body;
+  const file = req.file;
 
-    if(!file) return next(new ErrorHandler("Please Upload avatar"));
+  console.log("Received data: ", { name, username, password, bio });
+  console.log("Received file: ", file);
 
-    const avatar = {
-        public_id: "sfs",
-        url: "dvff",
-    };
-    const user = await User.create({ name, bio, username, password, avatar });
-    sendToken(res, user, 201, "User Created");
+  if (!file) return next(new ErrorHandler("Please Upload avatar"));
+
+  let result;
+  try {
+      result = await uploadFilesToCloudinary([file]);
+      console.log("Upload result: ", result);
+  } catch (error) {
+      console.error("Error uploading to Cloudinary: ", error);
+      return next(new ErrorHandler("Avatar upload failed"));
+  }
+
+  if (!result || result.length === 0) return next(new ErrorHandler("Avatar upload failed"));
+
+  const avatar = {
+      public_id: result[0].public_id,
+      url: result[0].url,
+  };
+
+  let user;
+  try {
+      user = await User.create({ name, bio, username, password, avatar });
+      console.log("User created: ", user);
+
+      // Send token or session information if needed
+
+      // Redirect to home screen upon successful registration
+      return res.status(200).json({
+          success: true,
+          message: "User created successfully",
+          redirect: "home", // Specify the redirect URL here
+      });
+  } catch (error) {
+      console.error("Error creating user: ", error);
+      return next(new ErrorHandler("User creation failed"));
+  }
 });
+
+
+
+
 
 const login = TryCatch(async (req, res, next) => {
     const { username, password } = req.body;

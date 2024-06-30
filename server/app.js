@@ -6,6 +6,7 @@ import { errorMiddleware } from "./middlewares/error.js";
 import cookieParser from "cookie-parser";
 import { Server } from "socket.io";
 import {createServer} from 'http';
+import cors from 'cors';
 import chatRoute from "./routes/chat.js";
 import userRoute from "./routes/user.js";
 import { createGroupChats, createMessagesInAChat, createSingleChats } from "./seeders/chat.js";
@@ -14,6 +15,7 @@ import adminRoute from "./routes/admin.js";
 import { NEW_MESSGAGE } from "./constants/events.js";
 import { getSockets } from "./lib/helper.js";
 import { Message } from "./models/message.js";
+import { v2 as cloudinary} from 'cloudinary'
 
 dotenv.config({
     path: "./.env",
@@ -28,7 +30,11 @@ const userSocketIDs= new Map();
 // Connect to the database
 connectDB(mongoURI);
 
-
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 
 
@@ -41,14 +47,22 @@ const io=new Server(server,{})
 
 
 // Middleware
+// Middleware
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors({
+    origin: ["http://localhost:5173", "http://localhost:4173", process.env.CLIENT_URL],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+}));
+
 
 // Routes
-app.use('/user', userRoute);
-app.use('/chat', chatRoute);
+app.use("/api/v1/user", userRoute);
+app.use("/api/v1/chat", chatRoute);
 
-app.use('/admin',adminRoute)
+app.use("/api/v1/admin",adminRoute)
 
 app.get("/", (req, res) => {
     res.send("Hello World");
