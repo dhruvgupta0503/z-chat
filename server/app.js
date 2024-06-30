@@ -14,7 +14,8 @@ import adminRoute from "./routes/admin.js";
 import { NEW_MESSGAGE } from "./constants/events.js";
 import { getSockets } from "./lib/helper.js";
 import { Message } from "./models/message.js";
-
+import { v2 as cloudinary} from 'cloudinary' 
+import cors from 'cors';
 dotenv.config({
     path: "./.env",
 });
@@ -27,6 +28,12 @@ const userSocketIDs= new Map();
 
 // Connect to the database
 connectDB(mongoURI);
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 
 
@@ -43,12 +50,16 @@ const io=new Server(server,{})
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors({
+    origin: ["http://localhost:5173","http://localhost:5174",process.env.CLIENT_URL],
+    credentials: true,
+}));
 
 // Routes
-app.use('/user', userRoute);
-app.use('/chat', chatRoute);
+app.use('/api/v1/user', userRoute);
+app.use('/api/v1/chat', chatRoute);
 
-app.use('/admin',adminRoute)
+app.use('/api/v1/admin',adminRoute);
 
 app.get("/", (req, res) => {
     res.send("Hello World");
