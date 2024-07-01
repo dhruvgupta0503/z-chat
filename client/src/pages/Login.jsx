@@ -85,10 +85,13 @@ const Login = () => {
               config
             );
       
+            // console.log(data)
             dispatch(userExists(data.user));
             toast.success(data.message);
+           // console.log("isWorking1")
           } catch (error) {
             toast.error(error?.response?.data?.message || "Something Went Wrong");
+           // console.log("isWorking2")
           }
 
         // Handle signup logic
