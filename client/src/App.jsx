@@ -5,7 +5,7 @@ import { LayoutLoader } from './components/layout/Loaders';
 import axios from 'axios';
 import { server } from './constants/config';
 import { useDispatch, useSelector } from 'react-redux';
-import { userNotExists,userExists } from './redux/reducers/auth';
+import { userNotExists } from './redux/reducers/auth';
 import {Toaster} from "react-hot-toast"
 
 const Home = lazy(() => import('./pages/Home'));
@@ -28,9 +28,13 @@ const App = () => {
 
   useEffect(() => {
     axios
-      .get(`${server}/api/v1/user/me`, { withCredentials: true })
-      .then(({ data }) => dispatch(userExists(data.user)))
-      .catch((err) => dispatch(userNotExists()));
+      .get(`${server}/api/v1/user/me`)
+      .then(res => {
+        setUser(res.data); // Assuming your API returns user data upon successful authentication
+      })
+      .catch(err => {
+        dispatch(userNotExists()); // Dispatch action on failure
+      });
   }, [dispatch]);
 
   // Example function to simulate login/logout

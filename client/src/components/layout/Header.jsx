@@ -6,18 +6,10 @@ import { useNavigate } from 'react-router-dom';
 import { Suspense } from 'react';
 import NewGroupDialog from '../specific/NewGroup';
 import NotificationDialog from '../specific/Notifications';
-import axios from 'axios';
 const SearchDialog = lazy(() => import('../specific/Search'));
-import { server } from '../../constants/config';
-import toast from 'react-hot-toast';
-import { useDispatch } from 'react-redux';
-import { userNotExists } from '../../redux/reducers/auth';
 
 const Header = () => {
     const navigate = useNavigate();
-    const dispatch=useDispatch();
-
-
     const [isMobile, setisMobile] = useState(false);
     const [isSearch, setisSearch] = useState(false);
     const [isNewGroup, setisNewGroup] = useState(false);
@@ -40,47 +32,9 @@ const Header = () => {
     };
 
     const navigateToGroup = () => navigate("/groups");
-
-    // const logoutHandler = async() => {
-    //    try {
-    //      console.log("Logout");
-    //      const {data}= await axios.get(`${server}/api/v1/user/logout`,{
-    //         withCredentials:true
-    //     });
-
-    //     console.log("isworking1")
-
-    //     dispatch(userNotExists());
-    //     toast.success(data.message);
-    //     console.log("isWorking2")
-        
-    //    } catch (error) {
-    //     console.log("isWorking3")
-    //         toast.error(error.response?.data?.message || "Something went wrong");
-    //         console.log("isWorking4")
-    //    }
-
-    // };
-    
-
-    const logoutHandler = async () => {
-        try {
-            console.log("Logout")
-          const { data } = await axios.get(`${server}/api/v1/user/logout`, {
-            withCredentials: true,
-          });
-          console.log("isWorking")
-          dispatch(userNotExists());
-          //console.log("isWorking2")
-          console.log("isWorking2")
-          toast.success(data.message);
-          console.log("isWorking3")
-        } catch (error) {
-            console.log("isWorking4")
-          toast.error(error?.response?.data?.message || "Something went wrong");
-          console.log("isWorking5")
-        }
-      };
+    const logoutHandler = () => {
+        console.log("Logout");
+    };
 
     return (
         <>
