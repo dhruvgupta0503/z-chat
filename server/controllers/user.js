@@ -7,35 +7,69 @@ import { Chat } from '../models/chat.js';
 import {Request} from '../models/request.js';
 import { NEW_REQUEST, REFETCH_CHATS } from '../constants/events.js';
 import { getOtherMember } from '../lib/helper.js';
+import bcrypt from 'bcrypt';
 
+// import { compare } from 'bcrypt';
+// import { User } from '../models/user.js';
+// import { cookieOptions, emitEvent, sendToken, uploadFilesToCloudinary } from '../utils/features.js';
+// import { TryCatch } from '../middlewares/error.js';
+// import { ErrorHandler } from '../utils/utility.js';
+// import { Chat } from '../models/chat.js';
+// import { Request } from '../models/request.js';
+// import { NEW_REQUEST, REFETCH_CHATS } from '../constants/events.js';
+// import { getOtherMember } from '../lib/helper.js';
 
 const newUser = TryCatch(async (req, res, next) => {
     const { name, username, password, bio } = req.body;
-    const file=req.file
+    const file = req.file;
 
-    if(!file) return next(new ErrorHandler("Please Upload avatar"));
+    if (!file) {
+        console.log('Avatar file not uploaded');
+        return next(new ErrorHandler("Please Upload avatar"));
+    }
 
+    console.log('File uploaded:', file);
 
-    const result=await uploadFilesToCloudinary([file]);
+    const result = await uploadFilesToCloudinary([file]);
 
     const avatar = {
         public_id: result[0].public_id,
         url: result[0].url,
     };
-    const user = await User.create({ name, bio, username, password, avatar });
+
+    console.log('Avatar uploaded to Cloudinary:', avatar);
+
+    // Hash the password before storing it
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await User.create({ name, bio, username, password: hashedPassword, avatar });
+
+    console.log('User created:', user);
+
     sendToken(res, user, 201, "User Created");
 });
 
 const login = TryCatch(async (req, res, next) => {
     const { username, password } = req.body;
+    console.log('Login attempt with username:', username);
+
     const user = await User.findOne({ username }).select("+password");
-    if (!user) return next(new ErrorHandler("Invalid Username or Password", 404));
+    if (!user) {
+        console.log('User not found');
+        return next(new ErrorHandler("Invalid Username or Password", 404));
+    }
 
     const isMatch = await compare(password, user.password);
-    if (!isMatch) return next(new Error("Invalid Password"));
+    if (!isMatch) {
+        console.log('Password does not match');
+        return next(new Error("Invalid Password"));
+    }
 
+    console.log('Login successful for user:', user.username);
     sendToken(res, user, 200, `Welcome Back, ${user.name}`);
 });
+
+
 
 const getMyProfile = TryCatch(async (req, res,next) => {
     const user = await User.findById(req.user).select("-password");

@@ -20,7 +20,7 @@ router.use(isAuthenticated);
 
 router.get("/me", getMyProfile);
 
-router.get("/logout", logout);
+router.get("/logout",isAuthenticated, logout);
 
 router.get("/search",searchUser);
 
