@@ -20,8 +20,9 @@ router.use(isAuthenticated);
 
 router.get("/me", getMyProfile);
 
-router.get("/logout",isAuthenticated, logout);
+router.get("/logout", logout);
 
+  
 router.get("/search",searchUser);
 
 router.put("/sendrequest",sendRequestValidator(),validateHandler,sendFriendRequest);

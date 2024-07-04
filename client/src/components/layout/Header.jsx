@@ -1,6 +1,6 @@
 import React, { lazy, useState } from 'react';
 import { AppBar, Box, Toolbar, Typography, IconButton, Backdrop } from '@mui/material';
-import { teal } from '@mui/material/colors'; // Import MUI colors
+import { teal } from '@mui/material/colors'; 
 import { Add as AddIcon, Menu as MenuIcon, Search as SearchIcon, Group as GroupIcon, Logout as LogoutIcon, Notifications as NotificationsIcon } from "@mui/icons-material";
 import { useNavigate } from 'react-router-dom';
 import { Suspense } from 'react';
@@ -15,8 +15,7 @@ import { userNotExists } from '../../redux/reducers/auth';
 
 const Header = () => {
     const navigate = useNavigate();
-    const dispatch=useDispatch();
-
+    const dispatch = useDispatch();
 
     const [isMobile, setisMobile] = useState(false);
     const [isSearch, setisSearch] = useState(false);
@@ -41,51 +40,28 @@ const Header = () => {
 
     const navigateToGroup = () => navigate("/groups");
 
-    // const logoutHandler = async() => {
-    //    try {
-    //      console.log("Logout");
-    //      const {data}= await axios.get(`${server}/api/v1/user/logout`,{
-    //         withCredentials:true
-    //     });
-
-    //     console.log("isworking1")
-
-    //     dispatch(userNotExists());
-    //     toast.success(data.message);
-    //     console.log("isWorking2")
-        
-    //    } catch (error) {
-    //     console.log("isWorking3")
-    //         toast.error(error.response?.data?.message || "Something went wrong");
-    //         console.log("isWorking4")
-    //    }
-
-    // };
-    
-
     const logoutHandler = async () => {
         try {
-            console.log("Logout")
-          const { data } = await axios.get(`${server}/api/v1/user/logout`, {
-            withCredentials: true,
-          });
-          console.log("isWorking")
-          dispatch(userNotExists());
-          //console.log("isWorking2")
-          console.log("isWorking2")
-          toast.success(data.message);
-          console.log("isWorking3")
+            console.log("Logout");
+            const { data } = await axios.get(`${server}/api/v1/user/logout`, {
+                withCredentials: true,
+            });
+            dispatch(userNotExists());
+            toast.success(data.message);
+           console.log("serfr",data)
+            console.log("isWorking2");
         } catch (error) {
-            console.log("isWorking4")
-          toast.error(error?.response?.data?.message || "Something went wrong");
-          console.log("isWorking5")
+            console.log("isWorking4");
+            toast.error(error?.response?.data?.message || "Something went wrong");
+          console.log("sdfs",error)
+            console.log("isWorking5");
         }
-      };
+    };
 
     return (
         <>
             <Box sx={{ flexGrow: 1 }}>
-                <AppBar position='static' sx={{ bgcolor: teal[400] }}> {/* Change the bgcolor to teal[400] */}
+                <AppBar position='static' sx={{ bgcolor: teal[400] }}>
                     <Toolbar>
                         <Typography variant='h6' sx={{ display: { xs: "none", sm: "block" } }}>
                             Z-Chat
