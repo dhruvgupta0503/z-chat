@@ -24,7 +24,6 @@ const newUser = TryCatch(async (req, res, next) => {
         url: result[0].url,
     };
 
-
     // Hash the password before storing it
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -41,12 +40,8 @@ const login = TryCatch(async (req, res, next) => {
         return next(new ErrorHandler("Invalid Username or Password", 404));
     }
 
-    console.log(username, password)
-    console.log(user)
-
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log(isMatch)
-    if (!isMatch) {
+        if (!isMatch) {
         return next(new ErrorHandler("Invalid Username or Password", 401));
     }
 
