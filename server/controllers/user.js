@@ -24,6 +24,7 @@ const newUser = TryCatch(async (req, res, next) => {
         url: result[0].url,
     };
 
+
     // Hash the password before storing it
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -40,7 +41,11 @@ const login = TryCatch(async (req, res, next) => {
         return next(new ErrorHandler("Invalid Username or Password", 404));
     }
 
+    console.log(username, password)
+    console.log(user)
+
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log(isMatch)
     if (!isMatch) {
         return next(new ErrorHandler("Invalid Username or Password", 401));
     }
@@ -57,7 +62,7 @@ const getMyProfile = TryCatch(async (req, res) => {
 });
 
 const logout = TryCatch(async (req, res) => {
-    return res.status(200).cookie("Z-chat-token", "", { ...cookieOptions, maxAge: 0 }).json({
+    return res.status(200).cookie("Z-Chat-token", "", { ...cookieOptions, maxAge: 0 }).json({
         success: true,
         message: "Logged out successfully",
     });

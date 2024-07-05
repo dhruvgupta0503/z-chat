@@ -4,7 +4,7 @@ import { adminSecretKey } from "../app.js";
 import { TryCatch } from "./error.js";
 
 const isAuthenticated = TryCatch((req, res, next) => {
-    const token = req.cookies["Z-chat-token"];
+    const token = req.cookies["Z-Chat-token"];
     if (!token) {
         return next(new ErrorHandler("Please login to access this route", 401));
     }
