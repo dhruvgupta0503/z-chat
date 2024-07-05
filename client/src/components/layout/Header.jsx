@@ -42,19 +42,20 @@ const Header = () => {
 
     const logoutHandler = async () => {
         try {
-            console.log("Logout");
+          //  console.log("Logout");
             const { data } = await axios.get(`${server}/api/v1/user/logout`, {
                 withCredentials: true,
             });
             dispatch(userNotExists());
             toast.success(data.message);
-           console.log("serfr",data)
-            console.log("isWorking2");
+            navigate("/login")
+          // console.log("serfr",data)
+           // console.log("isWorking2");
         } catch (error) {
-            console.log("isWorking4");
+          //  console.log("isWorking4");
             toast.error(error?.response?.data?.message || "Something went wrong");
-          console.log("sdfs",error)
-            console.log("isWorking5");
+        //  console.log("sdfs",error)
+           // console.log("isWorking5");
         }
     };
 
