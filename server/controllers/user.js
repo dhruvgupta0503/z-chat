@@ -55,8 +55,7 @@ const login = TryCatch(async (req, res, next) => {
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     return next(new ErrorHandler("Invalid Username or Password", 401));
-  }
-
+}
   sendToken(res, user, 200, `Welcome Back, ${user.name}`);
 });
 
@@ -71,7 +70,7 @@ const getMyProfile = TryCatch(async (req, res) => {
 const logout = TryCatch(async (req, res) => {
   return res
     .status(200)
-    .cookie("Z-chat-token", "", { ...cookieOptions, maxAge: 0 })
+    .cookie("Z-Chat-token", "", { ...cookieOptions, maxAge: 0 })
     .json({
       success: true,
       message: "Logged out successfully",

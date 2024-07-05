@@ -36,7 +36,7 @@ const App = () => {
       .catch((err) => dispatch(userNotExists()));
   }, [dispatch]);
 
-  console.log(user);
+  //console.log(user);
 
   return loader ? (
     <LayoutLoader />
