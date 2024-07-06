@@ -1,24 +1,49 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dialog, Stack, DialogTitle, TextField, InputAdornment, List } from '@mui/material';
 import { useInputValidation } from '6pp';
 import { Search as SearchIcon } from '@mui/icons-material';
 import UserItem from '../shared/UserItem';
-import { sampleUser } from '../../constants/sampleData';
-
-
+//import { sampleUser } from '../../constants/sampleData';
+import { useDispatch, useSelector } from 'react-redux';
+import { setIsSearch } from '../../redux/reducers/misc';
+import { useLazySearchUserQuery, useSendFriendRequestMutation } from '../../redux/api/api';
 
 const Search = () => {
-  const search = useInputValidation('');
-  let isLoadingSendFriendRequest=false;
-  const [users,SetUsers]=useState(sampleUser)
+  const { isSearch } = useSelector(state => state.misc);
+  const [searchUser]=useLazySearchUserQuery();
+  const [sendFriendRequest]=useSendFriendRequestMutation();
 
-  const addFriendHandler=(id)=>{
+  const dispatch = useDispatch(); // Correct useDispatch call
+
+  const search = useInputValidation('');
+  let isLoadingSendFriendRequest = false;
+  const [users, setUsers] = useState([]);
+
+  const addFriendHandler = (id) => {
     console.log(id);
+    sendFriendRequest({userId:id});
   };
 
+  const searchCloseHandler = () => dispatch(setIsSearch(false));
+  //console.log("efs");
+
+  useEffect(()=>{
+      const timeOutId=setTimeout(()=>{
+
+      searchUser(search.value).then(({data})=>setUsers(data.users)).catch((e)=>console.log(e));
+
+      
+      },1000)
+      return ()=>{
+        clearTimeout(timeOutId);
+      };
+
+    
+
+  },[search.value])
 
   return (
-    <Dialog open>
+    <Dialog open={isSearch} onClose={searchCloseHandler}>
       <Stack p={"2rem"} direction={"column"} width={"25rem"}>
         <DialogTitle textAlign={"center"}>Find People</DialogTitle>
         <TextField
@@ -37,7 +62,7 @@ const Search = () => {
         />
         <List>
           {users.map((i) => (
-           <UserItem user={i} key={i._id} handler={addFriendHandler} handlerIsLoading={isLoadingSendFriendRequest}/>
+            <UserItem user={i} key={i._id} handler={addFriendHandler} handlerIsLoading={isLoadingSendFriendRequest} />
           ))}
         </List>
       </Stack>

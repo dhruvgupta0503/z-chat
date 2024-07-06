@@ -1,15 +1,29 @@
 // AppLayout.jsx
 import React from 'react';
 import Header from './Header';
-import { Grid } from '@mui/material';
+import { Grid, Skeleton,Drawer } from '@mui/material';
 import ChatList from '../specific/ChatList';
-import { samplechats } from '../../constants/sampleData';
+//import { samplechats } from '../../constants/sampleData';
 import { useParams } from 'react-router-dom';
 import Profile from '../specific/Profile';
+import { useMyChatsQuery } from '../../redux/api/api';
+import { useDispatch, useSelector } from 'react-redux';
+import { setIsMobile } from '../../redux/reducers/misc';
+import { useErrors } from '../../hooks/hook';
+//import { useEffect } from 'react';
+
 const AppLayout = (WrappedComponent) => {
     const ComponentWithLayout = (props) => {
         // Move the useParams() hook inside the function component
+        const dispatch=useDispatch();
         const { chatId } = useParams();
+
+        const { isMobile } = useSelector((state)=>state.misc);
+        const {isLoading,data,isError,error,refetch} = useMyChatsQuery("")
+
+       useErrors([{isError,error}]);
+
+        
 
         // Define handleDeleteChat function
         const handleDeleteChat = (e, _id, groupChat) => {
@@ -17,18 +31,36 @@ const AppLayout = (WrappedComponent) => {
             console.log("Delete Chat", _id, groupChat);
         }
 
+        const handleMobileClose=()=>{
+            dispatch(setIsMobile(false));
+        }
+
         return (
             <div>
                 <Header />
+                {
+                    isLoading?<Skeleton/>:(
+                        <Drawer open={isMobile} onClose={handleMobileClose}>
+                        <ChatList
+                            w="70vw"
+                            chats={data?.chats}
+                            chatId={chatId} // Pass the chatId to ChatList
+                            handleDeleteChat={handleDeleteChat}
+                        />
+                        </Drawer>
+                    )
+                }
                 <Grid container height="calc(100vh - 4rem)">
                     <Grid item sm={4} md={3} sx={{
                         display: { xs: "none", sm: "block" },
                     }} height="100%">
-                        <ChatList
-                            chats={samplechats}
+                       {
+                        isLoading?(<Skeleton/>):( <ChatList
+                            chats={data?.chats}
                             chatId={chatId} // Pass the chatId to ChatList
                             handleDeleteChat={handleDeleteChat}
-                        />
+                        />)
+                       }
                     </Grid>
                     <Grid item xs={12} sm={8} md={5} lg={6} height="100%">
                         <WrappedComponent {...props} />
