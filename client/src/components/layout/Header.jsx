@@ -12,20 +12,20 @@ import { server } from '../../constants/config';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { userNotExists } from '../../redux/reducers/auth';
-import { setIsMobile,setIsSearch } from '../../redux/reducers/misc';
+import { setIsMobile,setIsSearch, setIsNotification } from '../../redux/reducers/misc';
 
 const Header = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const {isSearch}=useSelector(state=>state.misc)
+    const {isSearch,isNotification}=useSelector(state=>state.misc)
 
 
 
     //const [isMobile, setisMobile] = useState(false);
    // const [ setisSearch] = useState(false);
     const [isNewGroup, setisNewGroup] = useState(false);
-    const [isNotification, setisNotification] = useState(false);
+    //const [isNotification, setisNotification] = useState(false);
 
     const handleMobile = () => dispatch(setIsMobile(true));
 
@@ -39,9 +39,7 @@ const Header = () => {
         setisNewGroup(true);
     };
 
-    const openNotification = () => {
-        setisNotification(true);
-    };
+    const openNotification = () => dispatch(setIsNotification(true))
 
     const navigateToGroup = () => navigate("/groups");
 

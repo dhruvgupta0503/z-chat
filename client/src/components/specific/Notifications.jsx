@@ -11,35 +11,56 @@ import {
   Skeleton,
 } from "@mui/material";
 import { blueGrey, grey } from '@mui/material/colors'; // Import MUI colors
-import { sampleNotifications } from '../../constants/sampleData';
-import { useGetNotificationsQuery } from '../../redux/api/api';
+import { useAcceptFriendRequestMutation, useGetNotificationsQuery } from '../../redux/api/api';
 import { useErrors } from '../../hooks/hook';
+import { useDispatch, useSelector } from 'react-redux';
+import { setIsNotification } from '../../redux/reducers/misc';
+import toast from 'react-hot-toast';
 
 const Notifications = () => {
-  const {isLoading,data,error,isError}= useGetNotificationsQuery()
+  const { isNotification } = useSelector((state) => state.misc);
+  const dispatch = useDispatch();
 
+  const { isLoading, data, error, isError } = useGetNotificationsQuery();
 
-  const friendRequesthandler = ({_id,accept}) => {};
+  const [acceptRequest] = useAcceptFriendRequestMutation();
 
-  useErrors([{error,isError}]);
+  const friendRequestHandler = async ({ _id, accept }) => {
+    dispatch(setIsNotification(false));
 
-  console.log(data?.allRequests);
+    try {
+      const res = await acceptRequest({ requestId: _id, accept });
+      sd;
+      if (res.data?.success) {
+        console.log("Use SocketHere");
+        toast.success(res.data.message);
+      } else {
+        toast.error(res.data?.error || "Something went wrong");
+      }
+    } catch (error) {
+      toast.error("Something went wrong")
+      console.log(error);
+    }
+  };
+
+  const closeHandler = () => dispatch(setIsNotification(false));
+  useErrors([{ error, isError }]);
 
   return (
-    <Dialog open>
+    <Dialog open={isNotification} onClose={closeHandler}>
       <Stack p={{ xs: "1rem", sm: "2rem" }} maxWidth={"25rem"} sx={{ backgroundColor: grey[100], borderRadius: '10px' }}>
         <DialogTitle sx={{ backgroundColor: blueGrey[500], color: '#fff', borderRadius: '10px 10px 0 0' }}>Notifications</DialogTitle>
-      {
-        isLoading?<Skeleton/>:<>  {
-          data?.allRequests.length > 0 ? (
-            data?.allRequests.map(({sender, _id}) => (
-              <NotificationItem sender={sender} _id={_id} key={_id} handler={friendRequesthandler}  />
-            ))
-          ) : (
-            <Typography textAlign="center" mt={2}>No notifications</Typography>
-          )
-        }</>
-      }
+        {isLoading ? <Skeleton /> : (
+          <>
+            {data?.allRequests.length > 0 ? (
+              data.allRequests.map(({ sender, _id }) => (
+                <NotificationItem sender={sender} _id={_id} key={_id} handler={friendRequestHandler} />
+              ))
+            ) : (
+              <Typography textAlign="center" mt={2}>No notifications</Typography>
+            )}
+          </>
+        )}
       </Stack>
     </Dialog>
   );
@@ -47,8 +68,8 @@ const Notifications = () => {
 
 Notifications.displayName = 'Notifications';
 
-const NotificationItem = memo(({ sender, handler }) => {
-  const { name, avatar } = sender || {}; // Destructure name and avatar from sender object
+const NotificationItem = memo(({ sender, _id, handler }) => {
+  const { name, avatar } = sender || {};
 
   return (
     <ListItem sx={{ borderBottom: '1px solid #ccc' }}>
@@ -69,8 +90,8 @@ const NotificationItem = memo(({ sender, handler }) => {
           {name ? `${name} sent you a friend request.` : 'Unknown sender'}
         </Typography>
         <Stack direction="row" spacing={1}>
-          <Button variant="outlined" color="primary" onClick={() => handler({ accept: true })}>Accept</Button>
-          <Button variant="outlined" color="error" onClick={() => handler({ accept: false })}>Reject</Button>
+          <Button variant="outlined" color="primary" onClick={() => handler({ _id, accept: true })}>Accept</Button>
+          <Button variant="outlined" color="error" onClick={() => handler({ _id, accept: false })}>Reject</Button>
         </Stack>
       </Stack>
     </ListItem>
@@ -85,6 +106,7 @@ NotificationItem.propTypes = {
     name: PropTypes.string,
     avatar: PropTypes.string,
   }),
+  _id: PropTypes.string.isRequired,
   handler: PropTypes.func.isRequired,
 };
 
