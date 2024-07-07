@@ -8,26 +8,38 @@ import {
   Button,
   Stack,
   Typography,
+  Skeleton,
 } from "@mui/material";
 import { blueGrey, grey } from '@mui/material/colors'; // Import MUI colors
 import { sampleNotifications } from '../../constants/sampleData';
+import { useGetNotificationsQuery } from '../../redux/api/api';
+import { useErrors } from '../../hooks/hook';
 
 const Notifications = () => {
-  const friendRequesthandler = () => {};
+  const {isLoading,data,error,isError}= useGetNotificationsQuery()
+
+
+  const friendRequesthandler = ({_id,accept}) => {};
+
+  useErrors([{error,isError}]);
+
+  console.log(data?.allRequests);
 
   return (
     <Dialog open>
       <Stack p={{ xs: "1rem", sm: "2rem" }} maxWidth={"25rem"} sx={{ backgroundColor: grey[100], borderRadius: '10px' }}>
         <DialogTitle sx={{ backgroundColor: blueGrey[500], color: '#fff', borderRadius: '10px 10px 0 0' }}>Notifications</DialogTitle>
-        {
-          sampleNotifications.length > 0 ? (
-            sampleNotifications.map((sender, index) => (
-              <NotificationItem sender={sender} key={index} handler={friendRequesthandler} />
+      {
+        isLoading?<Skeleton/>:<>  {
+          data?.allRequests.length > 0 ? (
+            data?.allRequests.map(({sender, _id}) => (
+              <NotificationItem sender={sender} _id={_id} key={_id} handler={friendRequesthandler}  />
             ))
           ) : (
             <Typography textAlign="center" mt={2}>No notifications</Typography>
           )
-        }
+        }</>
+      }
       </Stack>
     </Dialog>
   );

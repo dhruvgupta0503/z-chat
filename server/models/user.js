@@ -1,8 +1,12 @@
 import mongoose, { Schema, model } from "mongoose";
-import { hash } from 'bcrypt';
+//import { hash } from 'bcrypt';
 
 const schema = new Schema({
     name: {
+        type: String,
+        required: true,
+    },
+    bio: {
         type: String,
         required: true,
     },

@@ -1,16 +1,19 @@
 import React from 'react';
 import { Avatar, Stack, Grid } from '@mui/material';
 import { Typography } from '@mui/material';
-import { Face as FaceIcon, AlternateEmail as UserNameIcon } from '@mui/icons-material';
+import { Face as FaceIcon, AlternateEmail as UserNameIcon,CalendarMonth as CalendarIcon } from '@mui/icons-material';
+import moment from "moment";
 import PropTypes from 'prop-types';
+import { transformImage } from '../../lib/features';
 
-const Profile = () => {
+
+const Profile = ({user}) => {
   return (
     <Grid container justifyContent="center">
       <Grid item xs={12} md={6}>
         <Stack spacing={4} direction="column" alignItems="center">
           <Avatar
-            src="https://via.placeholder.com/200"
+              src={transformImage(user?.avatar?.url)}
             sx={{
               width: 200,
               height: 200,
@@ -19,9 +22,18 @@ const Profile = () => {
               boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
             }}
           />
-          <ProfileCard heading="Bio" text="Random" />
-          <ProfileCard heading="UserName" text="giggles" Icon={<UserNameIcon />} />
-          <ProfileCard heading="Name" text="Giggles" Icon={<FaceIcon />} />
+           <ProfileCard heading={"Bio"} text={user?.bio} />
+      <ProfileCard
+        heading={"Username"}
+        text={user?.username}
+        Icon={<UserNameIcon />}
+      />
+          <ProfileCard heading={"Name"} text={user?.name} Icon={<FaceIcon />} />
+      <ProfileCard
+        heading={"Joined"}
+        text={moment(user?.createdAt).fromNow()}
+        Icon={<CalendarIcon />}
+      />
         </Stack>
       </Grid>
     </Grid>
