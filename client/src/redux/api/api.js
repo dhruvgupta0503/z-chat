@@ -54,15 +54,23 @@ acceptFriendRequest:builder.mutation({
     invalidatesTags:["Chat"]
 }),
 
+chatDetails:builder.query({
+    query:({chatId,populate=false})=>{
+        let url=`chat/${chatId}`;
+        if(populate) url+="?populate=true"
+        
 
+        return {
+            url,
+            credentials:"include",
+    }
+},
+    providesTags:["Chats"],
+}),
 
-
-    }),
-
-   
-
+ }),
 });
 
 export default api;
 
-export const  {useMyChatsQuery,useLazySearchUserQuery,useSendFriendRequestMutation,useGetNotificationsQuery,useAcceptFriendRequestMutation} = api;
+export const  {useMyChatsQuery,useLazySearchUserQuery,useSendFriendRequestMutation,useGetNotificationsQuery,useAcceptFriendRequestMutation,useChatDetailsQuery} = api;

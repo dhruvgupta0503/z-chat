@@ -12,6 +12,7 @@ import { server } from "./constants/config";
 import { useDispatch, useSelector } from "react-redux";
 import { userNotExists, userExists } from "./redux/reducers/auth";
 import { Toaster } from "react-hot-toast";
+import { SocketProvider } from "./socket";
 
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
@@ -36,8 +37,6 @@ const App = () => {
       .catch((err) => dispatch(userNotExists()));
   }, [dispatch]);
 
-  //console.log(user);
-
   return loader ? (
     <LayoutLoader />
   ) : (
@@ -48,9 +47,30 @@ const App = () => {
             path="/"
             element={<ProtectRoute user={user} redirect="/login" />}
           />
-          <Route path="/home" element={<Home />} />
-          <Route path="/groups" element={<Groups />} />
-          <Route path="/chat/:chatId" element={<Chat />} />
+          <Route
+            path="/home"
+            element={
+              <SocketProvider>
+                <Home />
+              </SocketProvider>
+            }
+          />
+          <Route
+            path="/groups"
+            element={
+              <SocketProvider>
+                <Groups />
+              </SocketProvider>
+            }
+          />
+          <Route
+            path="/chat/:chatId"
+            element={
+              <SocketProvider>
+                <Chat />
+              </SocketProvider>
+            }
+          />
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<Dashboard />} />
           <Route path="/admin/users-management" element={<UserManagement />} />

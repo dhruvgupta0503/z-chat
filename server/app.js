@@ -9,11 +9,13 @@ import { createServer } from 'http';
 import chatRoute from "./routes/chat.js";
 import userRoute from "./routes/user.js";
 import adminRoute from "./routes/admin.js";
-import { NEW_MESSAGE } from "./constants/events.js";
+import { NEW_MESSAGE,NEW_MESSAGE_ALERT } from "./constants/events.js";
 import { getSockets } from "./lib/helper.js";
 import { Message } from "./models/message.js";
 import { v2 as cloudinary } from 'cloudinary';
 import cors from 'cors';
+import { corsOptions } from "./constants/config.js";
+import { socketAuthenticator } from "./middlewares/Auth.js";
 
 dotenv.config({
     path: "./.env",
@@ -36,15 +38,14 @@ cloudinary.config({
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server, {});
+const io = new Server(server, {
+    cors:corsOptions,
+});
 
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
-    origin: ["http://localhost:5173", "http://localhost:5174", process.env.CLIENT_URL],
-    credentials: true,
-}));
+app.use(cors(corsOptions));
 
 // Routes
 app.use('/api/v1/user', userRoute);
@@ -56,15 +57,16 @@ app.get("/", (req, res) => {
 });
 
 io.use((socket, next) => {
-    // Implement socket authentication here if necessary
-    next();
+    cookieParser()(socket.request,socket.request.res,
+        async (err)=>{
+       await socketAuthenticator(err,socket,next)
+    });
+    //next();
 });
 
 io.on("connection", (socket) => {
-    const user = {
-        _id: "dfvs",
-        name: "giggles",
-    };
+    const user = socket.user;
+    
     userSocketIDs.set(user._id.toString(), socket.id);
     console.log(userSocketIDs);
 
@@ -85,9 +87,10 @@ io.on("connection", (socket) => {
             sender: user._id,
             chat: chatId,
         };
+        console.log("Emitting",messageForRealTime)
 
         const membersSocket = getSockets(members);
-        io.to(membersSocket).emit(NEW_MESSGAGE, {
+        io.to(membersSocket).emit(NEW_MESSAGE, {
             chatId,
             message: messageForRealTime
         });
