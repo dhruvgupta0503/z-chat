@@ -45,7 +45,7 @@ const miscSlice = createSlice({
             state.isDeleteMenu=action.payload;
         }
         ,
-        setIsUploadingLoader:(state,action)=>{
+        setUploadingLoader:(state,action)=>{
             state.uploadingLoader=action.payload;
         }
         ,
@@ -66,7 +66,7 @@ export const {
     setIsSearch,
     setIsFileMenu,
     setIsDeleteMenu,
-    setIsUploadingLoader,
+    setUploadingLoader,
     setSelectedDeleteChat
     } = miscSlice.actions;
 

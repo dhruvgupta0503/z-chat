@@ -2,7 +2,7 @@ import { TryCatch } from "../middlewares/error.js";
 import { ErrorHandler } from "../utils/utility.js";
 import { Chat } from '../models/chat.js';
 import { User } from '../models/user.js';
-import { deleteFilesFromCloudinary, emitEvent } from "../utils/features.js";
+import { deleteFilesFromCloudinary, emitEvent, uploadFilesToCloudinary } from "../utils/features.js";
 import { ALERT, NEW_ATTACHMENT, NEW_MESSAGE_ALERT, REFETCH_CHATS } from "../constants/events.js";
 import { getOtherMember } from "../lib/helper.js";
 import {Message} from "../models/message.js"
@@ -200,6 +200,8 @@ const sendAttachment =TryCatch(async(req,res,next)=>{
     const {chatId}=req.body;
     const files=req.files || [];
 
+    console.log(files);
+
     if(files.length < 1) return next (new ErrorHandler("Please upload attachement",404));
 
     if(files.length>5) return next(new ErrorHandler("Files cant be more than 5"),400); 
@@ -213,7 +215,7 @@ const sendAttachment =TryCatch(async(req,res,next)=>{
 
    // upload files here  
 
-    const attachments=[];
+    const attachments=await uploadFilesToCloudinary(files);
 
     const messageForRealTime={
     content:"",
