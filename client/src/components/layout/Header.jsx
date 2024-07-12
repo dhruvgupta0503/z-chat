@@ -13,12 +13,17 @@ import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { userNotExists } from '../../redux/reducers/auth';
 import { setIsMobile,setIsSearch, setIsNotification } from '../../redux/reducers/misc';
+//import {notificationCount} from '../../redux/reducers/chat';
+import {Tooltip,Badge} from '@mui/material';
+import { resetNotificationCount } from '../../redux/reducers/chat';
 
 const Header = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const {isSearch,isNotification}=useSelector(state=>state.misc)
+    const {notificationCount}= useSelector(state=>state.chat)
+    
 
 
 
@@ -39,7 +44,10 @@ const Header = () => {
         setisNewGroup(true);
     };
 
-    const openNotification = () => dispatch(setIsNotification(true))
+    const openNotification = () => {
+        dispatch(setIsNotification(true))
+        dispatch(resetNotificationCount())
+    }
 
     const navigateToGroup = () => navigate("/groups");
 
@@ -77,22 +85,38 @@ const Header = () => {
                         </Box>
                         <Box sx={{ flexGrow: 1 }} />
                         <Box>
-                            <IconButton color="inherit" size="large" onClick={openSearch}>
-                                <SearchIcon />
-                            </IconButton>
-                            <IconButton color='inherit' size="large" onClick={openNewGroup}>
-                                <AddIcon />
-                            </IconButton>
-                            <IconButton color='inherit' size="large" onClick={navigateToGroup}>
-                                <GroupIcon />
-                            </IconButton>
-                            <IconButton color='inherit' size="large" onClick={openNotification}>
-                                <NotificationsIcon />
-                            </IconButton>
-                            <IconButton color='inherit' size="large" onClick={logoutHandler}>
-                                <LogoutIcon />
-                            </IconButton>
-                        </Box>
+              <IconBtn
+                title={"Search"}
+                icon={<SearchIcon />}
+                onClick={openSearch}
+              />
+
+              <IconBtn
+                title={"New Group"}
+                icon={<AddIcon />}
+                onClick={openNewGroup}
+              />
+
+              <IconBtn
+                title={"Manage Groups"}
+                icon={<GroupIcon />}
+                onClick={navigateToGroup}
+              />
+
+              <IconBtn
+                title={"Notifications"}
+                icon={<NotificationsIcon />}
+                onClick={openNotification}
+                value={notificationCount}
+                
+              />
+
+              <IconBtn
+                title={"Logout"}
+                icon={<LogoutIcon />}
+                onClick={logoutHandler}
+              />
+            </Box>
                     </Toolbar>
                 </AppBar>
             </Box>
@@ -114,5 +138,21 @@ const Header = () => {
         </>
     );
 };
+
+const IconBtn = ({ title, icon, onClick, value }) => {
+    return (
+      <Tooltip title={title}>
+        <IconButton color="inherit" size="large" onClick={onClick}>
+          {value ? (
+            <Badge badgeContent={value} color="error">
+              {icon}
+            </Badge>
+          ) : (
+            icon
+          )}
+        </IconButton>
+      </Tooltip>
+    );
+  };
 
 export default Header;

@@ -3,7 +3,7 @@ import { ErrorHandler } from "../utils/utility.js";
 import { Chat } from '../models/chat.js';
 import { User } from '../models/user.js';
 import { deleteFilesFromCloudinary, emitEvent, uploadFilesToCloudinary } from "../utils/features.js";
-import { ALERT, NEW_ATTACHMENT, NEW_MESSAGE_ALERT, REFETCH_CHATS } from "../constants/events.js";
+import { ALERT,  NEW_MESSAGE, NEW_MESSAGE_ALERT, REFETCH_CHATS } from "../constants/events.js";
 import { getOtherMember } from "../lib/helper.js";
 import {Message} from "../models/message.js"
 
@@ -231,7 +231,7 @@ const sendAttachment =TryCatch(async(req,res,next)=>{
     const messageForDB={content:"",attachments,sender:me._id,chat:chatId};
     const message=await Message.create(messageForDB);
 
-    emitEvent(req,NEW_ATTACHMENT,chat.members,
+    emitEvent(req,NEW_MESSAGE,chat.members,
         {
             message:messageForRealTime,
             chatId,
