@@ -13,6 +13,9 @@ const UserItem = ({
 }) => {
   const { name, _id, avatar } = user;
 
+  // Ensure avatar is a string
+  const avatarUrl = Array.isArray(avatar) ? avatar[0] : avatar;
+
   return (
     <ListItem>
       <Stack
@@ -22,8 +25,7 @@ const UserItem = ({
         width={"100%"}
         {...styling}
       >
-      <Avatar src={transformImage(avatar)} />
-
+        <Avatar src={transformImage(avatarUrl)} />
 
         <Typography
           variant="body1"
@@ -63,7 +65,7 @@ UserItem.propTypes = {
   user: PropTypes.shape({
     name: PropTypes.string.isRequired,
     _id: PropTypes.string.isRequired,
-    avatar: PropTypes.string.isRequired,
+    avatar: PropTypes.oneOfType([PropTypes.string, PropTypes.array]).isRequired,
   }).isRequired,
   handler: PropTypes.func.isRequired,
   handlerIsLoading: PropTypes.bool,

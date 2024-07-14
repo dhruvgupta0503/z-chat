@@ -19,20 +19,36 @@ import { Delete as DeleteIcon } from '@mui/icons-material';
 import { Add as AddIcon } from '@mui/icons-material';
 import UserItem from '../components/shared/UserItem';
 import { bgGradient } from '../constants/color';
+import { useMyGroupsQuery } from '../redux/api/api';
+import { useErrors } from '../hooks/hook';
+import { LayoutLoader } from '../components/layout/Loaders';
 
 const ConfirmDeleteDialog = lazy(() => import("../components/dialogs/ConfirmDeleteDialog"));
 const AddMemberDialog = lazy(() => import("../components/dialogs/AddMemberDialog"));
 const isAddMember = false;
 
-const Groups = ({ myGroups }) => {
+const Groups = () => {
   const [searchParams] = useSearchParams();
   const chatId = searchParams.get("group");
   const navigate = useNavigate();
+
+const myGroups=useMyGroupsQuery("")
+
+console.log(myGroups.data);
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [confirmDeleteDialog, setConfirmDeleteDialog] = useState(false);
   const [groupName, setGroupName] = useState("");
   const [groupNameUpdatedValue, setGroupNameUpdatedValue] = useState("");
+
+  const errors=[{
+    isError:myGroups.isError,
+    error:myGroups.error,
+},
+]
+
+  useErrors(errors)
 
   const navigateBack = () => {
     navigate("/home");
@@ -156,7 +172,7 @@ const Groups = ({ myGroups }) => {
     </Stack>
   );
 
-  return (
+  return myGroups.isLoading?<LayoutLoader/>: (
     <Grid container height="100vh" justifyContent="space-between">
       <Grid
         item

@@ -12,7 +12,7 @@ import { server } from '../../constants/config';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { userNotExists } from '../../redux/reducers/auth';
-import { setIsMobile,setIsSearch, setIsNotification } from '../../redux/reducers/misc';
+import { setIsMobile,setIsSearch, setIsNotification, setIsNewGroup } from '../../redux/reducers/misc';
 //import {notificationCount} from '../../redux/reducers/chat';
 import {Tooltip,Badge} from '@mui/material';
 import { resetNotificationCount } from '../../redux/reducers/chat';
@@ -21,16 +21,13 @@ const Header = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const {isSearch,isNotification}=useSelector(state=>state.misc)
+    const {isSearch,isNotification,isNewGroup}=useSelector(state=>state.misc)
     const {notificationCount}= useSelector(state=>state.chat)
     
 
 
 
-    //const [isMobile, setisMobile] = useState(false);
-   // const [ setisSearch] = useState(false);
-    const [isNewGroup, setisNewGroup] = useState(false);
-    //const [isNotification, setisNotification] = useState(false);
+   
 
     const handleMobile = () => dispatch(setIsMobile(true));
 
@@ -41,7 +38,7 @@ const Header = () => {
     };
 
     const openNewGroup = () => {
-        setisNewGroup(true);
+        dispatch(setIsNewGroup(true));
     };
 
     const openNotification = () => {

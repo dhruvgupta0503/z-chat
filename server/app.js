@@ -9,7 +9,7 @@ import { createServer } from 'http';
 import chatRoute from "./routes/chat.js";
 import userRoute from "./routes/user.js";
 import adminRoute from "./routes/admin.js";
-import { NEW_MESSAGE,NEW_MESSAGE_ALERT } from "./constants/events.js";
+import { NEW_MESSAGE, NEW_MESSAGE_ALERT, START_TYPING,STOP_TYPING } from "./constants/events.js";
 import { getSockets } from "./lib/helper.js";
 import { Message } from "./models/message.js";
 import { v2 as cloudinary } from 'cloudinary';
@@ -39,10 +39,10 @@ cloudinary.config({
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
-    cors:corsOptions,
+    cors: corsOptions,
 });
 
-app.set("io",io)
+app.set("io", io)
 
 // Middleware
 app.use(express.json());
@@ -59,20 +59,26 @@ app.get("/", (req, res) => {
 });
 
 io.use((socket, next) => {
-    cookieParser()(socket.request,socket.request.res,
-        async (err)=>{
-       await socketAuthenticator(err,socket,next)
-    });
+    cookieParser()(socket.request, socket.request.res,
+        async (err) => {
+            await socketAuthenticator(err, socket, next)
+        });
     //next();
 });
 
 io.on("connection", (socket) => {
     const user = socket.user;
-    
+
     userSocketIDs.set(user._id.toString(), socket.id);
     console.log(userSocketIDs);
 
     socket.on(NEW_MESSAGE, async ({ chatId, members, message }) => {
+        console.log("NEW_MESSAGE event received:", { chatId, members, message });
+        if (!Array.isArray(members)) {
+            console.error("members is not an array:", members);
+            return;
+        }
+
         const messageForRealTime = {
             content: message,
             _id: uuid(),
@@ -103,6 +109,31 @@ io.on("connection", (socket) => {
             console.log(error);
         }
     });
+
+    socket.on(START_TYPING, (members, chatId) => {
+        console.log("START_TYPING event received:", chatId );
+        if (!Array.isArray(members)) {
+            console.error("members is not an array:", members);
+            return;
+        }
+
+        const membersSockets = getSockets(members);
+        socket.to(membersSockets).emit(START_TYPING, { chatId });
+    });
+
+    socket.on(STOP_TYPING, (members, chatId) => {
+        console.log("STOP_TYPING event received:", chatId );
+        if (!Array.isArray(members)) {
+            console.error("members is not an array:", members);
+            return;
+        }
+
+        const membersSockets = getSockets(members);
+        socket.to(membersSockets).emit(STOP_TYPING, { chatId });
+    });
+
+
+
 
     socket.on("disconnect", () => {
         console.log("user disconnected");
