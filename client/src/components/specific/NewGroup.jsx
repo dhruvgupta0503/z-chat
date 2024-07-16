@@ -30,7 +30,7 @@ const NewGroup = () => {
 
   const [selectedMembers, setSelectedMembers] = useState([]);
 
-  console.log(data);
+  
 
   const errors = [{
     isError,

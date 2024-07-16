@@ -1,6 +1,6 @@
 
 import React, { Suspense, lazy, useEffect } from 'react';
-import { Backdrop, ButtonGroup, Grid, IconButton, Stack, Typography } from '@mui/material';
+import { Backdrop, ButtonGroup, CircularProgress, Grid, IconButton, Stack, Typography } from '@mui/material';
 import { Add, KeyboardBackspace as KeyboardBackspaceIcon, Menu as MenuIcon } from '@mui/icons-material';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
@@ -10,7 +10,7 @@ import { memo } from 'react';
 import { Link } from "../components/styles/StyledComponents";
 import AvatarCard from "../components/shared/AvatarCard";
 import PropTypes from 'prop-types'; // Import PropTypes for prop validation
-import { sampleUser, samplechats } from "../constants/sampleData";
+//import { sampleUser } from "../constants/sampleData";
 import { Edit as EditIcon } from '@mui/icons-material';
 import {TextField} from '@mui/material';
 import { Done as DoneIcon } from '@mui/icons-material';
@@ -19,22 +19,39 @@ import { Delete as DeleteIcon } from '@mui/icons-material';
 import { Add as AddIcon } from '@mui/icons-material';
 import UserItem from '../components/shared/UserItem';
 import { bgGradient } from '../constants/color';
-import { useMyGroupsQuery } from '../redux/api/api';
-import { useErrors } from '../hooks/hook';
+import { useAddGroupMembersMutation, useChatDetailsQuery, useDeleteChatMutation, useMyGroupsQuery, useRemoveGroupMemberMutation, useRenameGroupMutation } from '../redux/api/api';
+import { useAsyncMutation, useErrors } from '../hooks/hook';
 import { LayoutLoader } from '../components/layout/Loaders';
+import { useDispatch, useSelector } from 'react-redux';
+import { setIsAddMember } from '../redux/reducers/misc';
 
 const ConfirmDeleteDialog = lazy(() => import("../components/dialogs/ConfirmDeleteDialog"));
 const AddMemberDialog = lazy(() => import("../components/dialogs/AddMemberDialog"));
-const isAddMember = false;
+
 
 const Groups = () => {
   const [searchParams] = useSearchParams();
   const chatId = searchParams.get("group");
   const navigate = useNavigate();
+  const dispatch=useDispatch()
 
-const myGroups=useMyGroupsQuery("")
+  const {isAddMember}=useSelector(state=>state.misc)
 
-console.log(myGroups.data);
+const myGroups=useMyGroupsQuery("");
+
+const groupDetails=useChatDetailsQuery({chatId,populate:true},
+  {skip:!chatId}
+)
+;
+
+const [updateGroup,isLoadingGroupName]=useAsyncMutation(useRenameGroupMutation);
+
+const [removeMember, isLoadingRemoveMember]=useAsyncMutation(useRemoveGroupMemberMutation);
+
+const [deleteGroup, isLoadingDeleteGroup]=useAsyncMutation(useDeleteChatMutation);
+
+
+
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -42,13 +59,35 @@ console.log(myGroups.data);
   const [groupName, setGroupName] = useState("");
   const [groupNameUpdatedValue, setGroupNameUpdatedValue] = useState("");
 
+  const [members,setMembers]=useState([])
+
   const errors=[{
     isError:myGroups.isError,
     error:myGroups.error,
 },
+{
+  isError:groupDetails.isError,
+  error:groupDetails.error,
+},
 ]
 
-  useErrors(errors)
+  useErrors(errors);
+
+  useEffect(() => {
+    const groupData = groupDetails.data;
+    if (groupData) {
+      setGroupName(groupData.chat.name);
+      setGroupNameUpdatedValue(groupData.chat.name);
+      setMembers(groupData.chat.members);
+    }
+    return () => {
+      setGroupName("");
+      setGroupNameUpdatedValue("");
+      setMembers([]);
+      setIsEdit(false);
+    };
+  }, [groupDetails.data]);
+
 
   const navigateBack = () => {
     navigate("/home");
@@ -64,12 +103,15 @@ console.log(myGroups.data);
 
   const updateGroupName = () => {
     setIsEdit(false);
-    console.log(groupNameUpdatedValue);
+    updateGroup("Updating Group Name...", {
+      chatId,
+      name: groupNameUpdatedValue,
+    });
   };
 
   const openConfirmDeleteHandler = () => {
     setConfirmDeleteDialog(true);
-    console.log("Delete Group");
+    
   };
 
   const closeConfirmDeleteHandler = () => {
@@ -77,16 +119,19 @@ console.log(myGroups.data);
   };
 
   const openAddMemberHandler = () => {
-    console.log("Add Member");
+    dispatch(setIsAddMember(true));
+    
   };
 
   const deleteHandler = () => {
-    console.log("delete handler");
+    deleteGroup("Deleting Group...",chatId);
     closeConfirmDeleteHandler();
+    navigate("/groups")
   };
 
-  const removeMemberHandler = (id) => {
-    console.log("remove member", id);
+  const removeMemberHandler = (userId) => {
+    removeMember("Removing Member...",{chatId,userId})
+ 
   };
 
   useEffect(() => {
@@ -141,14 +186,14 @@ console.log(myGroups.data);
       {isEdit ? (
         <>
           <TextField value={groupNameUpdatedValue} onChange={(e) => setGroupNameUpdatedValue(e.target.value)} />
-          <IconButton onClick={updateGroupName}>
+          <IconButton onClick={updateGroupName} disabled={isLoadingGroupName}>
             <DoneIcon />
           </IconButton>
         </>
       ) : (
         <>
           <Typography variant='h4'>{groupName} </Typography>
-          <IconButton onClick={() => setIsEdit(true)}><EditIcon /></IconButton>
+          <IconButton disabled={isLoadingGroupName} onClick={() => setIsEdit(true)}><EditIcon /></IconButton>
         </>
       )}
     </Stack>
@@ -181,7 +226,7 @@ console.log(myGroups.data);
           // backgroundImage: bgGradient
         }}
       >
-        <GroupsList myGroups={samplechats} chatId={chatId} />
+        <GroupsList myGroups={myGroups?.data?.groups} chatId={chatId} />
       </Grid>
       <Grid
         item
@@ -217,7 +262,7 @@ console.log(myGroups.data);
             overflow={"auto"}
           >
             {/*members */}
-            {sampleUser.map((i) => (
+            { isLoadingRemoveMember?(<CircularProgress/>):   members.map((i) => (
               <UserItem user={i} key={i._id} isAdded styling={{
                 boxShadow: "0 0 0.5rem rgba(0,0,0,0.2)",
                 padding: "1rem 2rem",
@@ -232,7 +277,7 @@ console.log(myGroups.data);
       </Grid>
 
       {isAddMember && (<Suspense fallback={<Backdrop open />}>
-        <AddMemberDialog />
+        <AddMemberDialog chatId={chatId} />
       </Suspense>
       )}
 
@@ -253,7 +298,7 @@ console.log(myGroups.data);
         open={isMobileMenuOpen}
         onClose={handleMobileClose}
       >
-        <GroupsList w={"50vw"} myGroups={samplechats} chatId={chatId} />
+        <GroupsList w={"50vw"} myGroups={myGroups?.data?.groups} chatId={chatId} />
       </Drawer>
     </Grid>
   );
