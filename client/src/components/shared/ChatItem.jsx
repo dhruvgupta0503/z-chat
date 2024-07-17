@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Link } from "../styles/StyledComponents";
 import { Box, Stack, Typography } from "@mui/material";
 import AvatarCard from "./AvatarCard";
+import { motion } from "framer-motion";
 
 const ChatItem = ({
   avatar,
@@ -12,7 +13,7 @@ const ChatItem = ({
   sameSender,
   isOnline,
   newMessageAlert,
-  //index=0,
+  index=0,
   handleDeleteChat,
 }) => {
   return (
@@ -23,7 +24,10 @@ const ChatItem = ({
       to={`/chat/${_id}`}
       onContextMenu={(e) => handleDeleteChat(e, _id, groupChat)}
     >
-      <div
+      <motion.div
+        initial={{ opacity: 0, y: "-100%" }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 * index }}
         style={{
           display: "flex",
           gap: "1rem",
@@ -57,7 +61,7 @@ const ChatItem = ({
             }}
           />
         )}
-      </div>
+      </motion.div>
     </Link>
   );
 };

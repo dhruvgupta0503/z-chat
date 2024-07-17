@@ -154,7 +154,14 @@ myGroups:builder.query({
         }),
         invalidatesTags: ["Chat"],
       }),
-
+      leaveGroup: builder.mutation({
+        query: (chatId) => ({
+          url: `chat/leave/${chatId}`,
+          method: "DELETE",
+          credentials: "include",
+        }),
+        invalidatesTags: ["Chat"],
+      }),
 
 
   }),
@@ -162,4 +169,4 @@ myGroups:builder.query({
 
 export default api;
 
-export const  {useMyChatsQuery,useLazySearchUserQuery,useSendFriendRequestMutation,useGetNotificationsQuery,useAcceptFriendRequestMutation,useChatDetailsQuery,useGetMessagesQuery,useSendAttachmentsMutation,useMyGroupsQuery,useAvailableFriendsQuery,useNewGroupMutation,useRenameGroupMutation,useRemoveGroupMemberMutation,useAddGroupMembersMutation,useDeleteChatMutation} = api;
+export const  {useMyChatsQuery,useLazySearchUserQuery,useSendFriendRequestMutation,useGetNotificationsQuery,useAcceptFriendRequestMutation,useChatDetailsQuery,useGetMessagesQuery,useSendAttachmentsMutation,useMyGroupsQuery,useAvailableFriendsQuery,useNewGroupMutation,useRenameGroupMutation,useRemoveGroupMemberMutation,useAddGroupMembersMutation,useDeleteChatMutation,useLeaveGroupMutation} = api;
