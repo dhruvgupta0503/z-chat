@@ -21,7 +21,7 @@ const Chat = ({ chatId, user }) => {
   const containerRef = useRef(null);
   const socket = useSocket();
   const dispatch = useDispatch();
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const bottomRef = useRef(null);
 
   const [message, setMessage] = useState("");
@@ -105,14 +105,9 @@ const Chat = ({ chatId, user }) => {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // useEffect(() => {
-  //   if (!chatDetails.data?.chat) return navigate("/home");
-  // }, [chatDetails.data]);
-
   useEffect(() => {
     if (chatDetails.isError) return navigate("/");
   }, [chatDetails.isError]);
-
 
   const newMessagesHandler = useCallback((data) => {
     if (data.chatId !== chatId) return;

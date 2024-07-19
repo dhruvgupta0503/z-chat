@@ -27,6 +27,8 @@ import { userExists } from "../redux/reducers/auth";
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [isLoading,setIsLoading]=useState(false)
+
   const [showPassword, setShowPassword] = useState(false);
 
   const toggleLogin = () => {
@@ -47,6 +49,9 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    const toastId=toast.loading("Logging in...");
+    setIsLoading(true)
+
     const config = {
       withCredentials: true,
       headers: {
@@ -64,14 +69,23 @@ const Login = () => {
         config
       );
       dispatch(userExists(data.user));
-      toast.success(data.message);
+      toast.success(data.message,{
+        id:toastId,
+      });
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something Went Wrong");
+      toast.error(error?.response?.data?.message || "Something Went Wrong",{
+        id:toastId
+      });
+    } finally{
+      setIsLoading(false)
     }
   };
 
   const handleSignup = async (e) => {
     e.preventDefault();
+
+    const toastId=toast.loading("Signing up...");
+    setIsLoading(true)
     const formData = new FormData();
     formData.append("name", name.value);
     formData.append("bio", bio.value);
@@ -93,9 +107,15 @@ const Login = () => {
         config
       );
       dispatch(userExists(data.user));
-      toast.success(data.message);
+      toast.success(data.message,{
+        id:toastId,
+      });
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something Went Wrong");
+      toast.error(error?.response?.data?.message || "Something Went Wrong",{
+        id:toastId,
+      });
+    }finally{
+      setIsLoading(false);
     }
   };
 
@@ -163,13 +183,14 @@ const Login = () => {
                   color="primary"
                   type="submit"
                   fullWidth
+                  disabled={isLoading}
                 >
                   Login
                 </Button>
                 <Typography textAlign="center" m="1rem">
                   OR
                 </Typography>
-                <Button fullWidth variant="text" onClick={toggleLogin}>
+                <Button disabled={isLoading} fullWidth variant="text" onClick={toggleLogin}>
                   Sign Up
                 </Button>
               </form>
@@ -264,13 +285,16 @@ const Login = () => {
                   color="primary"
                   type="submit"
                   fullWidth
+                  disabled={isLoading}
                 >
                   Sign Up
                 </Button>
                 <Typography textAlign="center" m="1rem">
                   OR
                 </Typography>
-                <Button fullWidth variant="text" onClick={toggleLogin}>
+                <Button disabled={isLoading}
+              
+                 fullWidth variant="text" onClick={toggleLogin}>
                   Login Instead!!
                 </Button>
               </form>
